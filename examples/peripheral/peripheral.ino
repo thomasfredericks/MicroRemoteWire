@@ -1,0 +1,39 @@
+// FILE main.cpp
+#include <Arduino.h>
+#include <Wire.h>
+#include <MicroRemoteWire.h>
+
+constexpr uint8_t PERIPHERAL_I2C_ADDR = 0x42;
+
+
+MicroRemoteWirePeripheral peripheral;
+
+// ==========================
+// I2C
+// ==========================
+void onReceive(int numBytes)
+{
+  peripheral.onReceive(Wire, numBytes);
+}
+
+void onRequest()
+{
+  peripheral.onRequest(Wire);
+}
+
+// ==========================
+// SETUP
+// ==========================
+void setup()
+{
+  Wire.begin(PERIPHERAL_I2C_ADDR);
+  Wire.onReceive(onReceive);
+  Wire.onRequest(onRequest);
+
+}
+
+void loop()
+{
+
+
+}

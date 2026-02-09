@@ -1,151 +1,93 @@
-#ifndef __ARDUINO_TERMINALS_PERIPHERAL_H__
-#define __ARDUINO_TERMINALS_PERIPHERAL_H__
+#ifndef __MICRO_REMOTE_WIRE_PERIPHERAL_H__
+#define __MICRO_REMOTE_WIRE_PERIPHERAL_H__
 
-#include <Arduino.h>
-#include <Wire.h>
-#include "MicroRemoteWire.h" // for MicroRemoteWireSnapshot, MicroRemoteWirePinModes
+#include "MicroRemoteWire.h"
 
-template <size_t DIGITAL_PINS = 14, size_t ANALOG_PINS = 8>
 class MicroRemoteWirePeripheral
 {
 private:
-    MicroRemoteWireSnapshot<DIGITAL_PINS, ANALOG_PINS> snapshot_;
-
-    MicroRemoteWirePinModes digitalPinModes_[DIGITAL_PINS] = {};
-    bool analogEnabled_[ANALOG_PINS] = {};
+    uint8_t command_;
+    uint16_t value_; // 16-bit to hold full analogRead
+    uint8_t pin_;
 
 public:
-    MicroRemoteWirePeripheral() {}
+    MicroRemoteWirePeripheral() : command_(0), value_(0), pin_(0) {}
 
-    // -------------------------------
-    // UPDATE LOOP
-    // -------------------------------
-    void update()
-    {
-        // ---- DIGITAL INPUTS ----
-        for (uint8_t i = 0; i < DIGITAL_PINS; ++i)
-        {
-            uint8_t val = 0;
-            if (digitalPinModes_[i] == MicroRemoteWirePinModes::MODE_INPUT ||
-                digitalPinModes_[i] == MicroRemoteWirePinModes::MODE_INPUT_PULLUP)
-            {
-                val = digitalRead(i);
-            }
-
-            if (val)
-                snapshot_.digital[i / 8] |= (1 << (i % 8));
-            else
-                snapshot_.digital[i / 8] &= ~(1 << (i % 8));
-        }
-
-        // ---- ANALOG INPUTS ----
-        for (uint8_t i = 0; i < ANALOG_PINS; ++i)
-        {
-            if (analogEnabled_[i])
-            {
-                snapshot_.analog[i] = analogRead(i);
-            }
-        }
-    }
-
-    // -------------------------------
-    // I2C RECEIVE
-    // -------------------------------
     void onReceive(TwoWire &wire, int numBytes)
     {
         if (numBytes < 1)
             return;
 
-        uint8_t reg = wire.read();
-        numBytes--;
+        command_ = wire.read(); // First byte is command
 
-        switch (reg)
+        switch (static_cast<MicroRemoteWireRegisters>(command_))
         {
-        // REGISTER 1: set digital pin mode
-        case MicroRemoteWireRegisters::SET_DIGITAL_MODE:
-        {
-            if (numBytes < 2)
-                return;
-
-            uint8_t idx = wire.read();
-            uint8_t mode = wire.read();
-            if (idx >= DIGITAL_PINS)
-                return;
-
-            digitalPinModes_[idx] = static_cast<MicroRemoteWirePinModes>(mode);
-
-            switch (digitalPinModes_[idx])
+        case MicroRemoteWireRegisters::SET_PIN_MODE:
+            if (wire.available() >= 2)
             {
-            case MicroRemoteWirePinModes::MODE_NONE:
-            case MicroRemoteWirePinModes::MODE_INPUT:
-                pinMode(idx, INPUT);
-                break;
-            case MicroRemoteWirePinModes::MODE_INPUT_PULLUP:
-                pinMode(idx, INPUT_PULLUP);
-                break;
-            case MicroRemoteWirePinModes::MODE_OUTPUT:
-                pinMode(idx, OUTPUT);
-                break;
+                pin_ = wire.read();
+                value_ = wire.read();
+                pinMode(pin_, value_);
+            }
+            break;
+
+        case MicroRemoteWireRegisters::DIGITAL_WRITE:
+            if (wire.available() >= 2)
+            {
+                pin_ = wire.read();
+                value_ = wire.read();
+                digitalWrite(pin_, value_);
+            }
+            break;
+
+        case MicroRemoteWireRegisters::ANALOG_WRITE:
+            if (wire.available() >= 2)
+            {
+                pin_ = wire.read();
+                value_ = wire.read();
+                analogWrite(pin_, value_);
+            }
+            break;
+
+        case MicroRemoteWireRegisters::DIGITAL_READ:
+            if (wire.available() >= 1)
+            {
+                pin_ = wire.read();
+                value_ = digitalRead(pin_); // Read immediately
+            }
+            break;
+
+        case MicroRemoteWireRegisters::ANALOG_READ:
+            if (wire.available() >= 1)
+            {
+                pin_ = wire.read();
+                value_ = analogRead(pin_); // Full 10-bit read
             }
             break;
         }
 
-        // REGISTER 2: digitalWrite single pin
-        case MicroRemoteWireRegisters::DIGITAL_WRITE:
-        {
-            if (numBytes < 2)
-                return;
-
-            uint8_t idx = wire.read();
-            uint8_t val = wire.read();
-            if (idx >= DIGITAL_PINS)
-                return;
-
-            if (digitalPinModes_[idx] == MicroRemoteWirePinModes::MODE_OUTPUT)
-                digitalWrite(idx, val);
-            break;
-        }
-
-        // REGISTER 3: analogWrite PWM
-        case MicroRemoteWireRegisters::ANALOG_WRITE:
-        {
-            if (numBytes < 2)
-                return;
-
-            uint8_t idx = wire.read();
-            uint8_t val = wire.read();
-            if (idx >= DIGITAL_PINS)
-                return;
-
-            analogWrite(idx, val);
-            break;
-        }
-
-        // REGISTER 4: enable/disable analog pin
-        case MicroRemoteWireRegisters::ANALOG_ENABLE:
-        {
-            if (numBytes < 2)
-                return;
-
-            uint8_t idx = wire.read();
-            uint8_t en = wire.read();
-            if (idx >= ANALOG_PINS)
-                return;
-
-            analogEnabled_[idx] = en != 0;
-            break;
-        }
-        }
+        // Flush any remaining bytes to prevent bus issues
+        while (wire.available())
+            wire.read();
     }
 
-    // -------------------------------
-    // I2C REQUEST
-    // -------------------------------
     void onRequest(TwoWire &wire)
     {
-        wire.write(reinterpret_cast<uint8_t *>(&snapshot_),
-                   sizeof(snapshot_));
+        switch (static_cast<MicroRemoteWireRegisters>(command_))
+        {
+        case MicroRemoteWireRegisters::DIGITAL_READ:
+            wire.write(value_ & 0xFF); // 1 byte
+            break;
+
+        case MicroRemoteWireRegisters::ANALOG_READ:
+            wire.write((value_ >> 8) & 0xFF); // MSB
+            wire.write(value_ & 0xFF);        // LSB
+            break;
+
+        default:
+                wire.write(0); // Default response for unsupported reads
+        }
     }
 };
 
-#endif
+#endif // __MICRO_REMOTE_WIRE_PERIPHERAL_H__`
