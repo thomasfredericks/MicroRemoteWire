@@ -1,0 +1,22 @@
+{
+  "name": "MicroRemoteWire",
+  "version": "0.0.1",
+  "description": "Small library framework that allows one I2C/Wire controller device to control a peripheral device ",
+  "keywords": "Communication",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/thomasfredericks/MicroRemoteWire.git"
+  },
+  "authors": [
+    {
+      "name": "Thomas Fredericks",
+      "url": "https://github.com/thomasfredericks",
+      "maintainer": true
+    }
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/thomasfredericks/MicroRemoteWire",
+  "dependencies": [{}],
+  "frameworks": "*",
+  "platforms": "*"
+}
