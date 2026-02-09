@@ -1,2 +1,2 @@
 # MicroRemoteWire
-Small library framework that allows one I2C/Wire controller device to control a peripheral device 
+Micro library for the Arduino framework for an I2C/Wire controller device to control a peripheral device 
