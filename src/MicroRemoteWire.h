@@ -3,15 +3,20 @@
 
 #include <Arduino.h>
 #include <Wire.h>
-
-enum class MicroRemoteWireRegisters : uint8_t
+namespace MicroRemoteWire
 {
-    SET_PIN_MODE = 0x01,
-    DIGITAL_WRITE = 0x02,
-    ANALOG_WRITE = 0x03,
-    DIGITAL_READ = 0x04,
-    ANALOG_READ = 0x05
-};
+    enum class Commands : uint8_t
+    {
+        SET_PIN_MODE = 0x01,
+        DIGITAL_WRITE = 0x02,
+        ANALOG_WRITE = 0x03,
+        DIGITAL_READ = 0x04,
+        ANALOG_READ = 0x05
+    };
+
+    
+}
+
 
 
 #endif // __MICRO_REMOTE_WIRE_H__

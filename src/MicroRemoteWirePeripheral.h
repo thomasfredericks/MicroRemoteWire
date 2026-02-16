@@ -20,9 +20,9 @@ public:
 
         command_ = wire.read(); // First byte is command
 
-        switch (static_cast<MicroRemoteWireRegisters>(command_))
+        switch (static_cast<MicroRemoteWire::Commands>(command_))
         {
-        case MicroRemoteWireRegisters::SET_PIN_MODE:
+        case MicroRemoteWire::Commands::SET_PIN_MODE:
             if (wire.available() >= 2)
             {
                 pin_ = wire.read();
@@ -31,7 +31,7 @@ public:
             }
             break;
 
-        case MicroRemoteWireRegisters::DIGITAL_WRITE:
+        case MicroRemoteWire::Commands::DIGITAL_WRITE:
             if (wire.available() >= 2)
             {
                 pin_ = wire.read();
@@ -40,7 +40,7 @@ public:
             }
             break;
 
-        case MicroRemoteWireRegisters::ANALOG_WRITE:
+        case MicroRemoteWire::Commands::ANALOG_WRITE:
             if (wire.available() >= 2)
             {
                 pin_ = wire.read();
@@ -49,7 +49,7 @@ public:
             }
             break;
 
-        case MicroRemoteWireRegisters::DIGITAL_READ:
+        case MicroRemoteWire::Commands::DIGITAL_READ:
             if (wire.available() >= 1)
             {
                 pin_ = wire.read();
@@ -57,7 +57,7 @@ public:
             }
             break;
 
-        case MicroRemoteWireRegisters::ANALOG_READ:
+        case MicroRemoteWire::Commands::ANALOG_READ:
             if (wire.available() >= 1)
             {
                 pin_ = wire.read();
@@ -73,13 +73,13 @@ public:
 
     void onRequest(TwoWire &wire)
     {
-        switch (static_cast<MicroRemoteWireRegisters>(command_))
+        switch (static_cast<MicroRemoteWire::Commands>(command_))
         {
-        case MicroRemoteWireRegisters::DIGITAL_READ:
+        case MicroRemoteWire::Commands::DIGITAL_READ:
             wire.write(value_ & 0xFF); // 1 byte
             break;
 
-        case MicroRemoteWireRegisters::ANALOG_READ:
+        case MicroRemoteWire::Commands::ANALOG_READ:
             wire.write((value_ >> 8) & 0xFF); // MSB
             wire.write(value_ & 0xFF);        // LSB
             break;

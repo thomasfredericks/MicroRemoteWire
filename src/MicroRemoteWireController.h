@@ -17,7 +17,7 @@ public:
     void setPinMode(uint8_t pin, uint8_t mode)
     {
         wire.beginTransmission(i2cAddress);
-        wire.write(static_cast<uint8_t>(MicroRemoteWireRegisters::SET_PIN_MODE));
+        wire.write(static_cast<uint8_t>(MicroRemoteWire::Commands::SET_PIN_MODE));
         wire.write(pin);
         wire.write(mode);
         wire.endTransmission();
@@ -26,7 +26,7 @@ public:
     void digitalWrite(uint8_t pin, uint8_t value)
     {
         wire.beginTransmission(i2cAddress);
-        wire.write(static_cast<uint8_t>(MicroRemoteWireRegisters::DIGITAL_WRITE));
+        wire.write(static_cast<uint8_t>(MicroRemoteWire::Commands::DIGITAL_WRITE));
         wire.write(pin);
         wire.write(value);
         wire.endTransmission();
@@ -35,7 +35,7 @@ public:
     void analogWrite(uint8_t pin, uint8_t value)
     {
         wire.beginTransmission(i2cAddress);
-        wire.write(static_cast<uint8_t>(MicroRemoteWireRegisters::ANALOG_WRITE));
+        wire.write(static_cast<uint8_t>(MicroRemoteWire::Commands::ANALOG_WRITE));
         wire.write(pin);
         wire.write(value);
         wire.endTransmission();
@@ -44,7 +44,7 @@ public:
     uint8_t digitalRead(uint8_t pin)
     {
         wire.beginTransmission(i2cAddress);
-        wire.write(static_cast<uint8_t>(MicroRemoteWireRegisters::DIGITAL_READ));
+        wire.write(static_cast<uint8_t>(MicroRemoteWire::Commands::DIGITAL_READ));
         wire.write(pin);
         wire.endTransmission(false);
 
@@ -59,7 +59,7 @@ public:
     uint16_t analogRead(uint8_t pin)
     {
         wire.beginTransmission(i2cAddress);
-        wire.write(static_cast<uint8_t>(MicroRemoteWireRegisters::ANALOG_READ));
+        wire.write(static_cast<uint8_t>(MicroRemoteWire::Commands::ANALOG_READ));
         wire.write(pin);
         wire.endTransmission(false);
 
