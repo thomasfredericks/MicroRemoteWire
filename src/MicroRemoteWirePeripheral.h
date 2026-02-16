@@ -20,18 +20,36 @@ public:
 
         command_ = wire.read(); // First byte is command
 
-        switch (static_cast<MicroRemoteWire::Commands>(command_))
+        switch (static_cast<MicroRemoteWire::Command>(command_))
         {
-        case MicroRemoteWire::Commands::SET_PIN_MODE:
+        case MicroRemoteWire::Command::SET_PIN_MODE:
             if (wire.available() >= 2)
             {
                 pin_ = wire.read();
                 value_ = wire.read();
+                switch (value_)
+                {
+
+                case static_cast<uint8_t>(MicroRemoteWire::Mode::MODE_OUTPUT):
+                    value_ = OUTPUT;
+                    break;
+                case static_cast<uint8_t>(MicroRemoteWire::Mode::MODE_INPUT_PULLUP):
+                    value_ = INPUT_PULLUP;
+                    break;
+                case static_cast<uint8_t>(MicroRemoteWire::Mode::MODE_INPUT_PULLDOWN):
+                    value_ = INPUT_PULLDOWN;
+                    break;
+                case static_cast<uint8_t>(MicroRemoteWire::Mode::MODE_INPUT):
+                default:
+                    value_ = INPUT; // Default to INPUT if unknown mode
+                    break;
+                }
+
                 pinMode(pin_, value_);
             }
             break;
 
-        case MicroRemoteWire::Commands::DIGITAL_WRITE:
+        case MicroRemoteWire::Command::DIGITAL_WRITE:
             if (wire.available() >= 2)
             {
                 pin_ = wire.read();
@@ -40,7 +58,7 @@ public:
             }
             break;
 
-        case MicroRemoteWire::Commands::ANALOG_WRITE:
+        case MicroRemoteWire::Command::ANALOG_WRITE:
             if (wire.available() >= 2)
             {
                 pin_ = wire.read();
@@ -49,7 +67,7 @@ public:
             }
             break;
 
-        case MicroRemoteWire::Commands::DIGITAL_READ:
+        case MicroRemoteWire::Command::DIGITAL_READ:
             if (wire.available() >= 1)
             {
                 pin_ = wire.read();
@@ -57,7 +75,7 @@ public:
             }
             break;
 
-        case MicroRemoteWire::Commands::ANALOG_READ:
+        case MicroRemoteWire::Command::ANALOG_READ:
             if (wire.available() >= 1)
             {
                 pin_ = wire.read();
@@ -73,19 +91,19 @@ public:
 
     void onRequest(TwoWire &wire)
     {
-        switch (static_cast<MicroRemoteWire::Commands>(command_))
+        switch (static_cast<MicroRemoteWire::Command>(command_))
         {
-        case MicroRemoteWire::Commands::DIGITAL_READ:
+        case MicroRemoteWire::Command::DIGITAL_READ:
             wire.write(value_ & 0xFF); // 1 byte
             break;
 
-        case MicroRemoteWire::Commands::ANALOG_READ:
+        case MicroRemoteWire::Command::ANALOG_READ:
             wire.write((value_ >> 8) & 0xFF); // MSB
             wire.write(value_ & 0xFF);        // LSB
             break;
 
         default:
-                wire.write(0); // Default response for unsupported reads
+            wire.write(0); // Default response for unsupported reads
         }
     }
 };
