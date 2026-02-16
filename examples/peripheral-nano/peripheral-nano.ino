@@ -1,7 +1,7 @@
 // FILE main.cpp
 #include <Arduino.h>
 #include <Wire.h>
-#include <MicroRemoteWire.h>
+#include <MicroRemoteWirePeripheral.h>
 
 constexpr uint8_t PERIPHERAL_I2C_ADDR = 0x42;
 
