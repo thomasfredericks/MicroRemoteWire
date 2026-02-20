@@ -67,20 +67,20 @@ void setup()
   osc.setDestination(ipCible, CIBLE_PORT);
 
   // Setup blink pin
-  remote.setPinMode(13, OUTPUT);
-  remote.digitalWrite(13, HIGH);
+  remote.setPinOutput(13);
+  remote.digitalWriteHigh(13);
 
   // Setup outputs
-  remote.setPinMode(3, OUTPUT);
-  remote.setPinMode(5, OUTPUT);
-  remote.setPinMode(6, OUTPUT);
-  remote.setPinMode(10, OUTPUT);
+  remote.setPinOutput(3);
+  remote.setPinOutput(5);
+  remote.setPinOutput(6);
+  remote.setPinOutput(10);
   
   // Setup inputs
-  remote.setPinMode(2, INPUT_PULLUP);
-  remote.setPinMode(4, INPUT_PULLUP);
-  remote.setPinMode(8, INPUT_PULLUP);
-  remote.setPinMode(9, INPUT_PULLUP);
+  remote.setPinInputPullup(2);
+  remote.setPinInputPullup(4);
+  remote.setPinInputPullup(8);
+  remote.setPinInputPullup(9);
 }
 
 void processOscMessage(MicroOscMessage &msg) {
@@ -88,12 +88,20 @@ void processOscMessage(MicroOscMessage &msg) {
   {
     uint8_t pin = msg.nextAsInt();
     uint8_t value = msg.nextAsInt();
-    remote.setPinMode(pin, value);
+    if (value == 0) {
+      remote.setPinInputPullup(pin);
+    } else if (value == 1) {
+      remote.setPinOutput(pin);
+    }
   } else if (msg.checkOscAddress("/dw"))
   {
     uint8_t pin = msg.nextAsInt();
     uint8_t value = msg.nextAsInt();
-    remote.digitalWrite(pin, value);
+    if (value == 0) {
+      remote.digitalWriteLow(pin);
+    } else {
+      remote.digitalWriteHigh(pin);
+    }
   } else if (msg.checkOscAddress("/aw"))
   {
     uint8_t pin = msg.nextAsInt();
