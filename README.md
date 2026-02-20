@@ -62,75 +62,101 @@ void loop()
   remote.digitalWriteLow(13);
   delay(1000);
 }
-
 ```
+
 ## Structs and Classes
 
 ### MicroRemoteWireController
 
-```cpp
-MicroRemoteWireController myMicroRemoteWireController(TwoWire &wire, uint8_t address);
-```
-Constructs a controller instance that communicates with a remote MicroRemoteWire peripheral over I2C. The parameters are `wire` (`TwoWire`) representing the I2C bus, and `address` (`uint8_t`) representing the I2C address of the remote peripheral.
+#### Constructor(s)
 
 ```cpp
- myMicroRemoteWireController.setPinOutput(uint8_t pin);
+MicroRemoteWireController myMicroRemoteWireController(wire, address);
+```
+Constructs a MicroRemoteWireController instance to communicate with a remote peripheral over I2C. The parameter `wire` (`TwoWire`) represents the I2C bus, and `address` (`uint8_t`) represents the I2C address of the remote device.
+
+#### setPinOutput
+
+```cpp
+ myMicroRemoteWireController.setPinOutput(pin);
 ```
 Sets the specified `pin` (`uint8_t`) as an output on the remote peripheral.
 
+#### setPinInput
+
 ```cpp
- myMicroRemoteWireController.setPinInput(uint8_t pin);
+ myMicroRemoteWireController.setPinInput(pin);
 ```
 Sets the specified `pin` (`uint8_t`) as a standard input on the remote peripheral.
 
+#### setPinInputPullup
+
 ```cpp
- myMicroRemoteWireController.setPinInputPullup(uint8_t pin);
+ myMicroRemoteWireController.setPinInputPullup(pin);
 ```
 Sets the specified `pin` (`uint8_t`) as an input with a pull-up resistor on the remote peripheral.
 
+#### setPinInputPulldown
+
 ```cpp
- myMicroRemoteWireController.setPinInputPulldown(uint8_t pin);
+ myMicroRemoteWireController.setPinInputPulldown(pin);
 ```
 Sets the specified `pin` (`uint8_t`) as an input with a pull-down resistor on the remote peripheral.
 
+#### digitalWriteHigh
+
 ```cpp
- myMicroRemoteWireController.digitalWriteHigh(uint8_t pin);
+ myMicroRemoteWireController.digitalWriteHigh(pin);
 ```
 Writes a high digital value to the specified `pin` (`uint8_t`) on the remote peripheral.
 
+#### digitalWriteLow
+
 ```cpp
- myMicroRemoteWireController.digitalWriteLow(uint8_t pin);
+ myMicroRemoteWireController.digitalWriteLow(pin);
 ```
 Writes a low digital value to the specified `pin` (`uint8_t`) on the remote peripheral.
 
-```cpp
- myMicroRemoteWireController.analogWrite(uint8_t pin, uint8_t value);
-```
-Writes an analog value `value` (`uint8_t`) using PWM to the specified `pin` (`uint8_t`) on the remote peripheral.
+#### analogWrite
 
 ```cpp
- uint8_t value = myMicroRemoteWireController.digitalRead(uint8_t pin);
+ myMicroRemoteWireController.analogWrite(pin, value);
 ```
-Reads the digital value from the specified `pin` (`uint8_t`) on the remote peripheral and returns it as `value` (`uint8_t`).
+Writes an analog PWM `value` (`uint8_t`) to the specified `pin` (`uint8_t`) on the remote peripheral.
+
+#### digitalRead
 
 ```cpp
- uint16_t value = myMicroRemoteWireController.analogRead(uint8_t pin);
+ uint8_t value = myMicroRemoteWireController.digitalRead(pin);
 ```
-Reads the analog value from the specified `pin` (`uint8_t`) on the remote peripheral and returns it as `value` (`uint16_t`).
+Reads the digital state of the specified `pin` (`uint8_t`) on the remote peripheral and returns it as `value` (`uint8_t`).
+
+#### analogRead
+
+```cpp
+ uint16_t value = myMicroRemoteWireController.analogRead(pin);
+```
+Reads the analog value of the specified `pin` (`uint8_t`) on the remote peripheral and returns it as `value` (`uint16_t`).
 
 ### MicroRemoteWirePeripheral
+
+#### Constructor(s)
 
 ```cpp
 MicroRemoteWirePeripheral myMicroRemoteWirePeripheral();
 ```
-Constructs a peripheral instance that responds to commands from a MicroRemoteWireController over I2C.
+Constructs a MicroRemoteWirePeripheral instance that responds to I2C commands from a controller.
+
+#### onReceive
 
 ```cpp
- myMicroRemoteWirePeripheral.onReceive(TwoWire &wire, int numBytes);
+ myMicroRemoteWirePeripheral.onReceive(wire, numBytes);
 ```
 Handles incoming I2C data from a controller. Processes commands for setting pin modes, digital writes, analog writes, digital reads, and analog reads. Parameters are `wire` (`TwoWire`) representing the I2C bus and `numBytes` (`int`) representing the number of bytes received.
 
+#### onRequest
+
 ```cpp
- myMicroRemoteWirePeripheral.onRequest(TwoWire &wire);
+ myMicroRemoteWirePeripheral.onRequest(wire);
 ```
-Handles an I2C request from the controller, returning data for digital or analog reads. Parameter is `wire` (`TwoWire`) representing the I2C bus.
+Handles an I2C request from the controller and sends the response for digital or analog reads. Parameter `wire` (`TwoWire`) represents the I2C bus.
