@@ -3,6 +3,11 @@
 
 #include "MicroRemoteWire.h"
 
+
+#ifndef INPUT_PULLDOWN
+#define INPUT_PULLDOWN INPUT // Define if not available in older Arduino versions
+#endif
+
 class MicroRemoteWirePeripheral
 {
 private:
@@ -54,7 +59,8 @@ public:
             {
                 pin_ = wire.read();
                 value_ = wire.read();
-                digitalWrite(pin_, value_);
+                if ( value_ == static_cast<uint8_t>(MicroRemoteWire::Value::VALUE_HIGH)) digitalWrite(pin_, HIGH);
+                else digitalWrite(pin_, LOW);
             }
             break;
 
@@ -72,6 +78,8 @@ public:
             {
                 pin_ = wire.read();
                 value_ = digitalRead(pin_); // Read immediately
+                if (value_ == LOW) value_ = static_cast<uint8_t>(MicroRemoteWire::Value::VALUE_LOW);
+                else value_ = static_cast<uint8_t>(MicroRemoteWire::Value::VALUE_HIGH);
             }
             break;
 
