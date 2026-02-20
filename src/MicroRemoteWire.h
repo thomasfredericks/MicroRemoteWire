@@ -1,8 +1,6 @@
 #ifndef __MICRO_REMOTE_WIRE_H__
 #define __MICRO_REMOTE_WIRE_H__
 
-#include <Arduino.h>
-#include <Wire.h>
 namespace MicroRemoteWire
 {
     enum class Command : uint8_t
@@ -21,15 +19,13 @@ namespace MicroRemoteWire
         MODE_INPUT_PULLUP = 0x02,
         MODE_INPUT_PULLDOWN = 0x03
     };
+
+    enum class Value : uint8_t
+    {
+        VALUE_LOW = 0x00,
+        VALUE_HIGH = 0x01
+    };
     
 }
 
-
-
 #endif // __MICRO_REMOTE_WIRE_H__
-
-// Add Controller and Peripheral if none where included yet
-#if !defined(__MICRO_REMOTE_WIRE_CONTROLLER_H__) || !defined(__MICRO_REMOTE_WIRE_PERIPHERAL_H__)
-#include "MicroRemoteWireController.h"
-#include "MicroRemoteWirePeripheral.h"
-#endif
