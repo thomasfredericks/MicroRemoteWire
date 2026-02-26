@@ -13,8 +13,8 @@ MicroNetEthernet myMicroNet(MicroNetEthernet::Configuration::ATOM_POE_WITH_ATOM_
 #include <MicroRemoteWireController.h>
 MicroRemoteWireController remote[] = {
     {Wire, 0x42},
-{Wire, 0x43},
-{Wire, 0x44},
+    {Wire, 0x43},
+    {Wire, 0x44},
 };
 size_t remoteCount = sizeof(remote) / sizeof(remote[0]);
 
