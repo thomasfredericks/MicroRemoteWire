@@ -1,6 +1,6 @@
 {
   "name": "MicroRemoteWire",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Small library framework that allows one I2C/Wire controller device to control a peripheral device ",
   "keywords": "Communication",
   "repository": {
