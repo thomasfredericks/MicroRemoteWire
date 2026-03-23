@@ -1,0 +1,6 @@
+{
+    "clangd.arguments": [
+        "--compile-commands-dir=/Users/tof/dev/MicroRemoteWire/examples/peripheral-nano",
+        "--query-driver=/Users/tof/.platformio/packages/toolchain-*/bin/*,/Users/tof/.platformio/packages/tool-*/bin/*"
+    ]
+}
